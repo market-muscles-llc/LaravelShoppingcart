@@ -64,6 +64,13 @@ class Cart
     private $discount = 0;
 
     /**
+     * Holds a discount for the whole cart.
+     *
+     * @var mixed
+     */
+    private $cartDiscount;
+
+    /**
      * Defines the tax rate.
      *
      * @var float
@@ -320,7 +327,9 @@ class Cart
      */
     public function countItems()
     {
-        return $this->getContent()->count();
+        return $this->getContent()
+            ->reject('discount')
+            ->count();
     }
 
     /**
@@ -620,6 +629,18 @@ class Cart
                 $item->setDiscountRate($this->discount);
             });
         }
+    }
+
+    public function addCartDiscount($amount, $type)
+    {
+        $discount = compact('amount', 'type');
+
+        $this->cartDiscount = $discount;
+
+        $content = $this->getContent();
+        $content->put('discount', $this->cartDiscount);
+
+        $this->session->put($this->instance, $content);
     }
 
     /**
