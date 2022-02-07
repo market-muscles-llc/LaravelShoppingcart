@@ -625,7 +625,7 @@ class Cart
 
         $content = $this->getContent();
         if ($content && $content->count()) {
-            $content->each(function ($item, $key) {
+            $content->each(function (CartItem $item, $key) {
                 $item->setDiscountRate($this->discount);
             });
         }
@@ -639,6 +639,14 @@ class Cart
 
         $content = $this->getContent();
         $content->put('discount', $this->cartDiscount);
+
+        $this->session->put($this->instance, $content);
+    }
+
+    public function removeCartDiscount()
+    {
+        $content = $this->getContent();
+        $content->pull('discount');
 
         $this->session->put($this->instance, $content);
     }
