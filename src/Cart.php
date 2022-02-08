@@ -57,7 +57,14 @@ class Cart
     private $updatedAt;
 
     /**
-     * Defines the discount percentage.
+     * Defines the discount type.
+     *
+     * @var string
+     */
+    private $discountType;
+
+    /**
+     * Defines the discount rate.
      *
      * @var float
      */
@@ -619,16 +626,28 @@ class Cart
      *
      * @return void
      */
-    public function setGlobalDiscount($discount)
+    public function setGlobalDiscount($discount, $type = 'percentage')
     {
         $this->discount = $discount;
+        $this->discountType = $type;
 
         $content = $this->getContent();
         if ($content && $content->count()) {
             $content->each(function (CartItem $item, $key) {
+                $item->setDiscountType($this->discountType);
                 $item->setDiscountRate($this->discount);
             });
         }
+    }
+
+    /**
+     * Helper method for removing global discount
+     *
+     * @return void
+     */
+    public function removeGlobalDiscount()
+    {
+        $this->setGlobalDiscount(0);
     }
 
     public function addCartDiscount($amount, $type)

@@ -89,6 +89,13 @@ class CartItem implements Arrayable, Jsonable
     private $associatedModel = null;
 
     /**
+     * The discount type fo the cart item.
+     *
+     * @var string
+     */
+    private $discountType;
+
+    /**
      * The discount rate for the cart item.
      *
      * @var float
@@ -366,6 +373,20 @@ class CartItem implements Arrayable, Jsonable
     }
 
     /**
+     * Set the discount type.
+     *
+     * @param string $discountType
+     *
+     * @return \Gloudemans\Shoppingcart\CartItem
+     */
+    public function setDiscountType($discountType)
+    {
+        $this->discountType = $discountType;
+
+        return $this;
+    }
+
+    /**
      * Set the discount rate.
      *
      * @param int|float $discountRate
@@ -547,6 +568,17 @@ class CartItem implements Arrayable, Jsonable
         }
 
         return number_format($value, $decimals, $decimalPoint, $thousandSeperator);
+    }
+
+    /**
+     * Getter for the raw internal discount type.
+     * Should be used in calculators.
+     *
+     * @return string
+     */
+    public function getDiscountType()
+    {
+        return $this->discountType;
     }
 
     /**
