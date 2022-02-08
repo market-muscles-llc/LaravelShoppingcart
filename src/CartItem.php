@@ -395,7 +395,8 @@ class CartItem implements Arrayable, Jsonable
      */
     public function setDiscountRate($discountRate)
     {
-        $this->discountRate = $discountRate;
+        $rate = $discountRate / $this->qty;
+        $this->discountRate = $rate;
 
         return $this;
     }

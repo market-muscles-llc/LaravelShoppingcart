@@ -21,6 +21,9 @@ class Cart
 
     const DEFAULT_INSTANCE = 'default';
 
+    const DISCOUNT_PERCENTAGE = 'percentage';
+    const DISCOUNT_FIXED = 'fixed';
+
     /**
      * Instance of the session manager.
      *
@@ -623,19 +626,23 @@ class Cart
      * This will set the discount for all cart items.
      *
      * @param float $discount
+     * @param string $type
      *
      * @return void
      */
-    public function setGlobalDiscount($discount, $type = 'percentage')
+    public function setGlobalDiscount($discount, $type = self::DISCOUNT_PERCENTAGE)
     {
         $this->discount = $discount;
         $this->discountType = $type;
 
         $content = $this->getContent();
         if ($content && $content->count()) {
-            $content->each(function (CartItem $item, $key) {
+            if ($this->discountType === self::DISCOUNT_FIXED) {
+                $rate = $this->discount / $content->count();
+            }
+            $content->each(function (CartItem $item, $key) use ($rate) {
                 $item->setDiscountType($this->discountType);
-                $item->setDiscountRate($this->discount);
+                $item->setDiscountRate($rate);
             });
         }
     }
