@@ -23,11 +23,7 @@ class DefaultCalculator implements Calculator
             case 'priceTax':
                 return round($cartItem->priceTarget + $cartItem->tax, $decimals);
             case 'discountTotal':
-                if ($cartItem->getDiscountType() === 'percentage') {
-                    return round($cartItem->discount * $cartItem->qty, $decimals);
-                } else {
-                    return $cartItem->getDiscountRate();
-                }
+                return round($cartItem->discount * $cartItem->qty, $decimals);
             case 'priceTotal':
                 return round($cartItem->price * $cartItem->qty, $decimals);
             case 'subtotal':
