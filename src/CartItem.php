@@ -25,6 +25,9 @@ use ReflectionClass;
  */
 class CartItem implements Arrayable, Jsonable
 {
+    const DISCOUNT_PERCENTAGE = 'percentage';
+    const DISCOUNT_FIXED = 'fixed';
+
     /**
      * The rowID of the cart item.
      *
@@ -395,8 +398,12 @@ class CartItem implements Arrayable, Jsonable
      */
     public function setDiscountRate($discountRate)
     {
-        $rate = $discountRate / $this->qty;
-        $this->discountRate = $rate;
+        if ($this->discountType === self::DISCOUNT_FIXED) {
+            $rate = $discountRate / $this->qty;
+            $this->discountRate = $rate;
+        } else {
+            $this->discountRate = $discountRate;
+        }
 
         return $this;
     }
