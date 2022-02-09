@@ -1612,10 +1612,10 @@ class CartTest extends TestCase
      *
      * @return \Gloudemans\Shoppingcart\Cart
      */
-    private function getCartDiscount($discount = 50)
+    private function getCartDiscount($discount = 50, $type = Cart::DISCOUNT_PERCENTAGE)
     {
         $cart = $this->getCart();
-        $cart->setGlobalDiscount($discount);
+        $cart->setGlobalDiscount($discount, $type);
 
         return $cart;
     }
