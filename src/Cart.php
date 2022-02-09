@@ -637,6 +637,8 @@ class Cart
 
         $content = $this->getContent();
         if ($content && $content->count()) {
+            $rate = $this->discount;
+
             if ($this->discountType === self::DISCOUNT_FIXED) {
                 $rate = $this->discount / $content->count();
             }
