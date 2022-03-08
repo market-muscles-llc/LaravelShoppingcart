@@ -336,7 +336,7 @@ class Cart
      */
     public function count()
     {
-        return $this->getContent()->sum('qty');
+        return $this->getContent()->reject('discount')->sum('qty');
     }
 
     /**
@@ -347,7 +347,7 @@ class Cart
      */
     public function countItems()
     {
-        return $this->getContent()->count();
+        return $this->getContent()->reject('discount')->count();
     }
 
     /**
@@ -357,7 +357,7 @@ class Cart
      */
     public function totalFloat()
     {
-        return $this->getContent()->reduce(function ($total, CartItem $cartItem) {
+        return $this->getContent()->reject('discount')->reduce(function ($total, CartItem $cartItem) {
             return $total + $cartItem->total;
         }, 0);
     }
@@ -383,7 +383,7 @@ class Cart
      */
     public function taxFloat()
     {
-        return $this->getContent()->reduce(function ($tax, CartItem $cartItem) {
+        return $this->getContent()->reject('discount')->reduce(function ($tax, CartItem $cartItem) {
             return $tax + $cartItem->taxTotal;
         }, 0);
     }
@@ -409,7 +409,7 @@ class Cart
      */
     public function subtotalFloat()
     {
-        return $this->getContent()->reduce(function ($subTotal, CartItem $cartItem) {
+        return $this->getContent()->reject('discount')->reduce(function ($subTotal, CartItem $cartItem) {
             return $subTotal + $cartItem->subtotal;
         }, 0);
     }
@@ -435,7 +435,7 @@ class Cart
      */
     public function discountFloat()
     {
-        return $this->getContent()->reduce(function ($discount, CartItem $cartItem) {
+        return $this->getContent()->reject('discount')->reduce(function ($discount, CartItem $cartItem) {
             return $discount + $cartItem->discountTotal;
         }, 0);
     }
@@ -461,7 +461,7 @@ class Cart
      */
     public function initialFloat()
     {
-        return $this->getContent()->reduce(function ($initial, CartItem $cartItem) {
+        return $this->getContent()->reject('discount')->reduce(function ($initial, CartItem $cartItem) {
             return $initial + ($cartItem->qty * $cartItem->price);
         }, 0);
     }
@@ -487,7 +487,7 @@ class Cart
      */
     public function priceTotalFloat()
     {
-        return $this->getContent()->reduce(function ($initial, CartItem $cartItem) {
+        return $this->getContent()->reject('discount')->reduce(function ($initial, CartItem $cartItem) {
             return $initial + $cartItem->priceTotal;
         }, 0);
     }
@@ -513,7 +513,7 @@ class Cart
      */
     public function weightFloat()
     {
-        return $this->getContent()->reduce(function ($total, CartItem $cartItem) {
+        return $this->getContent()->reject('discount')->reduce(function ($total, CartItem $cartItem) {
             return $total + ($cartItem->qty * $cartItem->weight);
         }, 0);
     }
@@ -600,7 +600,7 @@ class Cart
     {
         $this->taxRate = $taxRate;
 
-        $content = $this->getContent();
+        $content = $this->getContent()->reject('discount');
         if ($content && $content->count()) {
             $content->each(function ($item, $key) {
                 $item->setTaxRate($this->taxRate);
@@ -647,7 +647,7 @@ class Cart
 
         $this->addCartDiscount();
 
-        $content = $this->getContent();
+        $content = $this->getContent()->reject('discount');
         if ($content && $content->count()) {
             $rate = $this->discount;
 
@@ -854,10 +854,7 @@ class Cart
     protected function getContent()
     {
         if ($this->session->has($this->instance)) {
-            return $this->session->get($this->instance)
-                ->reject(function ($row, $rowId) {
-                    return $rowId === 'discount';
-                });
+            return $this->session->get($this->instance);
         }
 
         return new Collection();
