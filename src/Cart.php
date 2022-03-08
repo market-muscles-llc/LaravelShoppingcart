@@ -203,6 +203,10 @@ class Cart
             $this->events->dispatch('cart.added', $item);
         }
 
+        if ($discount = $this->getCartDiscount()) {
+            $this->setGlobalDiscount($discount->code, $discount->amount, $discount->type);
+        }
+
         return $item;
     }
 
@@ -259,6 +263,10 @@ class Cart
 
         $this->events->dispatch('cart.updated', $cartItem);
 
+        if ($discount = $this->getCartDiscount()) {
+            $this->setGlobalDiscount($discount->code, $discount->amount, $discount->type);
+        }
+
         return $cartItem;
     }
 
@@ -282,6 +290,10 @@ class Cart
         $this->session->put($this->instance, $content);
 
         $this->events->dispatch('cart.removed', $cartItem);
+
+        if ($discount = $this->getCartDiscount()) {
+            $this->setGlobalDiscount($discount->code, $discount->amount, $discount->type);
+        }
     }
 
     /**
@@ -687,10 +699,7 @@ class Cart
 
         $this->addCartDiscount();
 
-        $content = $this->getContent()
-            ->reject(function ($row, $rowId) {
-                return $rowId === 'discount';
-            });
+        $content = $this->content();
 
         if ($content && $content->count()) {
             $rate = $this->discount;
@@ -712,7 +721,7 @@ class Cart
      */
     public function removeGlobalDiscount()
     {
-        $this->setGlobalDiscount(0);
+        $this->setGlobalDiscount(null, 0);
     }
 
     public function addCartDiscount()
@@ -731,12 +740,9 @@ class Cart
         $this->session->put($this->instance, $content);
     }
 
-    public function removeCartDiscount()
+    public function getCartDiscount()
     {
-        $content = $this->getContent();
-        $content->pull('discount');
-
-        $this->session->put($this->instance, $content);
+        return (object) $this->getContent()->get('discount');
     }
 
     /**
