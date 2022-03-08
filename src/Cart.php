@@ -645,7 +645,7 @@ class Cart
         $this->discountType = $type;
         $this->discount = $discount;
 
-        $content = $this->getContent();
+        $content = $this->content();
         if ($content && $content->count()) {
             $this->addCartDiscount();
             $rate = $this->discount;
@@ -853,10 +853,7 @@ class Cart
     protected function getContent()
     {
         if ($this->session->has($this->instance)) {
-            return $this->session->get($this->instance)
-                ->reject(function ($row, $rowId) {
-                    return $rowId === 'discount';
-                });
+            return $this->session->get($this->instance);
         }
 
         return new Collection();
