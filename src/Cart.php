@@ -323,7 +323,10 @@ class Cart
             return new Collection([]);
         }
 
-        return $this->session->get($this->instance);
+        return $this->session->get($this->instance)
+            ->reject(function ($row, $rowId) {
+                return $rowId === 'discount';
+            });
     }
 
     /**
@@ -344,9 +347,7 @@ class Cart
      */
     public function countItems()
     {
-        return $this->getContent()
-            ->reject('discount')
-            ->count();
+        return $this->getContent()->count();
     }
 
     /**
@@ -852,7 +853,10 @@ class Cart
     protected function getContent()
     {
         if ($this->session->has($this->instance)) {
-            return $this->session->get($this->instance);
+            return $this->session->get($this->instance)
+                ->reject(function ($row, $rowId) {
+                    return $rowId === 'discount';
+                });
         }
 
         return new Collection();
