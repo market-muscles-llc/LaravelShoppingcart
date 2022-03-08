@@ -629,9 +629,10 @@ class Cart
     }
 
     /**
-     * Set the global discount percentage for the cart.
+     * Set the global discount for the cart.
      * This will set the discount for all cart items.
      *
+     * @param string $code
      * @param float $discount
      * @param string $type
      *
