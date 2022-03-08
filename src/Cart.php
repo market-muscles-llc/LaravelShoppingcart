@@ -60,6 +60,13 @@ class Cart
     private $updatedAt;
 
     /**
+     * Defines the discount code.
+     *
+     * @var string
+     */
+    private $discountCode;
+
+    /**
      * Defines the discount type.
      *
      * @var string
@@ -630,13 +637,15 @@ class Cart
      *
      * @return void
      */
-    public function setGlobalDiscount($discount, $type = self::DISCOUNT_PERCENTAGE)
+    public function setGlobalDiscount($code, $discount, $type = self::DISCOUNT_PERCENTAGE)
     {
-        $this->discount = $discount;
+        $this->discountCode = $code;
         $this->discountType = $type;
+        $this->discount = $discount;
 
         $content = $this->getContent();
         if ($content && $content->count()) {
+            $this->addCartDiscount();
             $rate = $this->discount;
 
             if ($this->discountType === self::DISCOUNT_FIXED) {
@@ -659,9 +668,13 @@ class Cart
         $this->setGlobalDiscount(0);
     }
 
-    public function addCartDiscount($amount, $type)
+    public function addCartDiscount()
     {
-        $discount = compact('amount', 'type');
+        $discount = [
+            'code'   => $this->discountCode,
+            'type'   => $this->discountType,
+            'amount' => $this->discount,
+        ];
 
         $this->cartDiscount = $discount;
 
