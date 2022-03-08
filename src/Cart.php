@@ -742,6 +742,10 @@ class Cart
 
     public function getCartDiscount()
     {
+        if (!$this->getContent()->has('discount')) {
+            return null;
+        }
+
         return (object) $this->getContent()->get('discount');
     }
 
