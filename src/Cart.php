@@ -770,10 +770,16 @@ class Cart
             throw new CartAlreadyStoredException("A cart with identifier {$identifier} was already stored.");
         }
 
+        if ($this->getConnection()->getDriverName() === 'pgsql') {
+            $serializedContent = base64_encode(serialize($content));
+        } else {
+            $serializedContent = serialize($content);
+        }
+
         $this->getConnection()->table($this->getTableName())->insert([
             'identifier' => $identifier,
             'instance'   => $instance,
-            'content'    => serialize($content),
+            'content'    => $serializedContent,
             'created_at' => $this->createdAt ?: Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
@@ -803,7 +809,11 @@ class Cart
         $stored = $this->getConnection()->table($this->getTableName())
             ->where(['identifier'=> $identifier, 'instance' => $currentInstance])->first();
 
-        $storedContent = unserialize(data_get($stored, 'content'));
+        if ($this->getConnection()->getDriverName() === 'pgsql') {
+            $storedContent = unserialize(base64_decode(data_get($stored, 'content')));
+        } else {
+            $storedContent = unserialize(data_get($stored, 'content'));
+        }
 
         $this->instance(data_get($stored, 'instance'));
 
@@ -868,7 +878,11 @@ class Cart
         $stored = $this->getConnection()->table($this->getTableName())
             ->where(['identifier'=> $identifier, 'instance'=> $instance])->first();
 
-        $storedContent = unserialize($stored->content);
+        if ($this->getConnection()->getDriverName() === 'pgsql') {
+            $storedContent = unserialize(base64_decode($stored->content));
+        } else {
+            $storedContent = unserialize($stored->content);
+        }
 
         foreach ($storedContent as $cartItem) {
             $this->addCartItem($cartItem, $keepDiscount, $keepTax, $dispatchAdd);

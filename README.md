@@ -27,6 +27,10 @@ You definitely should publish the `config` file and take a look at it.
 
 This will give you a `cart.php` config file in which you can make changes to the packages behaivor.
 
+## Updates
+
+As of version **4.2.0** this package does, when being used with PostgreSQL, encode the cart content to base64 before storing into database due to an [issue with saving values including zero bytes](https://github.com/bumbummen99/LaravelShoppingcart/pull/167). Please consider clearing your cart table in case you are upgrading using PostgreSQL from a version **<4.2.0**.
+
 ## Table of Contents
 Look at one of the following topics to learn more about LaravelShoppingcart
 
@@ -939,6 +943,13 @@ Cart::add('1239ad0', 'Product 2', 2, 5.95, ['size' => 'large']);
         </a>
     </td>
     <td align="center">
+        <a href="https://github.com/mauriciv">
+            <img src="https://avatars.githubusercontent.com/u/12043163?v=4" width="100;" alt="mauriciv"/>
+            <br />
+            <sub><b>Mauricio Vera</b></sub>
+        </a>
+    </td>
+    <td align="center">
         <a href="https://github.com/xpundel">
             <img src="https://avatars.githubusercontent.com/u/1384653?v=4" width="100;" alt="xpundel"/>
             <br />
@@ -958,20 +969,27 @@ Cart::add('1239ad0', 'Product 2', 2, 5.95, ['size' => 'large']);
             <br />
             <sub><b>Niels Stampe</b></sub>
         </a>
-    </td>
+    </td></tr>
+<tr>
     <td align="center">
         <a href="https://github.com/4ilo">
             <img src="https://avatars.githubusercontent.com/u/15938739?v=4" width="100;" alt="4ilo"/>
             <br />
             <sub><b>Olivier</b></sub>
         </a>
-    </td></tr>
-<tr>
+    </td>
     <td align="center">
         <a href="https://github.com/PazkaL">
             <img src="https://avatars.githubusercontent.com/u/1322192?v=4" width="100;" alt="PazkaL"/>
             <br />
             <sub><b>Pascal Kousbroek</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/quintenbuis">
+            <img src="https://avatars.githubusercontent.com/u/36452184?v=4" width="100;" alt="quintenbuis"/>
+            <br />
+            <sub><b>Quinten Buis</b></sub>
         </a>
     </td>
     <td align="center">
@@ -994,7 +1012,8 @@ Cart::add('1239ad0', 'Product 2', 2, 5.95, ['size' => 'large']);
             <br />
             <sub><b>Salim Djerbouh</b></sub>
         </a>
-    </td>
+    </td></tr>
+<tr>
     <td align="center">
         <a href="https://github.com/pendalff">
             <img src="https://avatars.githubusercontent.com/u/236587?v=4" width="100;" alt="pendalff"/>
@@ -1008,8 +1027,7 @@ Cart::add('1239ad0', 'Product 2', 2, 5.95, ['size' => 'large']);
             <br />
             <sub><b>Sobhan Atar</b></sub>
         </a>
-    </td></tr>
-<tr>
+    </td>
     <td align="center">
         <a href="https://github.com/mightyteja">
             <img src="https://avatars.githubusercontent.com/u/2662727?v=4" width="100;" alt="mightyteja"/>
