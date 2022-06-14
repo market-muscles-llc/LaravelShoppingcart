@@ -21,6 +21,9 @@ class Cart
 
     const DEFAULT_INSTANCE = 'default';
 
+    const DISCOUNT_PERCENTAGE = 'percentage';
+    const DISCOUNT_FIXED = 'fixed';
+
     /**
      * Instance of the session manager.
      *
@@ -57,11 +60,32 @@ class Cart
     private $updatedAt;
 
     /**
-     * Defines the discount percentage.
+     * Defines the discount code.
+     *
+     * @var string
+     */
+    private $discountCode;
+
+    /**
+     * Defines the discount type.
+     *
+     * @var string
+     */
+    private $discountType;
+
+    /**
+     * Defines the discount rate.
      *
      * @var float
      */
     private $discount = 0;
+
+    /**
+     * Holds a discount for the whole cart.
+     *
+     * @var mixed
+     */
+    private $cartDiscount;
 
     /**
      * Defines the tax rate.
@@ -179,6 +203,10 @@ class Cart
             $this->events->dispatch('cart.added', $item);
         }
 
+        if ($discount = $this->getCartDiscount()) {
+            $this->setGlobalDiscount($discount->code, $discount->amount, $discount->type);
+        }
+
         return $item;
     }
 
@@ -235,6 +263,10 @@ class Cart
 
         $this->events->dispatch('cart.updated', $cartItem);
 
+        if ($discount = $this->getCartDiscount()) {
+            $this->setGlobalDiscount($discount->code, $discount->amount, $discount->type);
+        }
+
         return $cartItem;
     }
 
@@ -258,6 +290,10 @@ class Cart
         $this->session->put($this->instance, $content);
 
         $this->events->dispatch('cart.removed', $cartItem);
+
+        if ($discount = $this->getCartDiscount()) {
+            $this->setGlobalDiscount($discount->code, $discount->amount, $discount->type);
+        }
     }
 
     /**
@@ -299,7 +335,10 @@ class Cart
             return new Collection([]);
         }
 
-        return $this->session->get($this->instance);
+        return $this->session->get($this->instance)
+            ->reject(function ($row, $rowId) {
+                return $rowId === 'discount';
+            });
     }
 
     /**
@@ -309,7 +348,11 @@ class Cart
      */
     public function count()
     {
-        return $this->getContent()->sum('qty');
+        return $this->getContent()
+            ->reject(function ($row, $rowId) {
+                return $rowId === 'discount';
+            })
+            ->sum('qty');
     }
 
     /**
@@ -320,7 +363,11 @@ class Cart
      */
     public function countItems()
     {
-        return $this->getContent()->count();
+        return $this->getContent()
+            ->reject(function ($row, $rowId) {
+                return $rowId === 'discount';
+            })
+            ->count();
     }
 
     /**
@@ -330,9 +377,13 @@ class Cart
      */
     public function totalFloat()
     {
-        return $this->getContent()->reduce(function ($total, CartItem $cartItem) {
-            return $total + $cartItem->total;
-        }, 0);
+        return $this->getContent()
+            ->reject(function ($row, $rowId) {
+                return $rowId === 'discount';
+            })
+            ->reduce(function ($total, CartItem $cartItem) {
+                return $total + $cartItem->total;
+            }, 0);
     }
 
     /**
@@ -356,9 +407,13 @@ class Cart
      */
     public function taxFloat()
     {
-        return $this->getContent()->reduce(function ($tax, CartItem $cartItem) {
-            return $tax + $cartItem->taxTotal;
-        }, 0);
+        return $this->getContent()
+            ->reject(function ($row, $rowId) {
+                return $rowId === 'discount';
+            })
+            ->reduce(function ($tax, CartItem $cartItem) {
+                return $tax + $cartItem->taxTotal;
+            }, 0);
     }
 
     /**
@@ -382,9 +437,13 @@ class Cart
      */
     public function subtotalFloat()
     {
-        return $this->getContent()->reduce(function ($subTotal, CartItem $cartItem) {
-            return $subTotal + $cartItem->subtotal;
-        }, 0);
+        return $this->getContent()
+            ->reject(function ($row, $rowId) {
+                return $rowId === 'discount';
+            })
+            ->reduce(function ($subTotal, CartItem $cartItem) {
+                return $subTotal + $cartItem->subtotal;
+            }, 0);
     }
 
     /**
@@ -408,9 +467,13 @@ class Cart
      */
     public function discountFloat()
     {
-        return $this->getContent()->reduce(function ($discount, CartItem $cartItem) {
-            return $discount + $cartItem->discountTotal;
-        }, 0);
+        return $this->getContent()
+            ->reject(function ($row, $rowId) {
+                return $rowId === 'discount';
+            })
+            ->reduce(function ($discount, CartItem $cartItem) {
+                return $discount + $cartItem->discountTotal;
+            }, 0);
     }
 
     /**
@@ -434,9 +497,13 @@ class Cart
      */
     public function initialFloat()
     {
-        return $this->getContent()->reduce(function ($initial, CartItem $cartItem) {
-            return $initial + ($cartItem->qty * $cartItem->price);
-        }, 0);
+        return $this->getContent()
+            ->reject(function ($row, $rowId) {
+                return $rowId === 'discount';
+            })
+            ->reduce(function ($initial, CartItem $cartItem) {
+                return $initial + ($cartItem->qty * $cartItem->price);
+            }, 0);
     }
 
     /**
@@ -460,9 +527,13 @@ class Cart
      */
     public function priceTotalFloat()
     {
-        return $this->getContent()->reduce(function ($initial, CartItem $cartItem) {
-            return $initial + $cartItem->priceTotal;
-        }, 0);
+        return $this->getContent()
+            ->reject(function ($row, $rowId) {
+                return $rowId === 'discount';
+            })
+            ->reduce(function ($initial, CartItem $cartItem) {
+                return $initial + $cartItem->priceTotal;
+            }, 0);
     }
 
     /**
@@ -486,9 +557,13 @@ class Cart
      */
     public function weightFloat()
     {
-        return $this->getContent()->reduce(function ($total, CartItem $cartItem) {
-            return $total + ($cartItem->qty * $cartItem->weight);
-        }, 0);
+        return $this->getContent()
+            ->reject(function ($row, $rowId) {
+                return $rowId === 'discount';
+            })
+            ->reduce(function ($total, CartItem $cartItem) {
+                return $total + ($cartItem->qty * $cartItem->weight);
+            }, 0);
     }
 
     /**
@@ -573,7 +648,11 @@ class Cart
     {
         $this->taxRate = $taxRate;
 
-        $content = $this->getContent();
+        $content = $this->getContent()
+            ->reject(function ($row, $rowId) {
+                return $rowId === 'discount';
+            });
+
         if ($content && $content->count()) {
             $content->each(function ($item, $key) {
                 $item->setTaxRate($this->taxRate);
@@ -603,23 +682,71 @@ class Cart
     }
 
     /**
-     * Set the global discount percentage for the cart.
+     * Set the global discount for the cart.
      * This will set the discount for all cart items.
      *
+     * @param string $code
      * @param float $discount
+     * @param string $type
      *
      * @return void
      */
-    public function setGlobalDiscount($discount)
+    public function setGlobalDiscount($code, $discount, $type = self::DISCOUNT_PERCENTAGE)
     {
+        $this->discountCode = $code;
+        $this->discountType = $type;
         $this->discount = $discount;
 
-        $content = $this->getContent();
+        $this->addCartDiscount();
+
+        $content = $this->content();
+
         if ($content && $content->count()) {
-            $content->each(function ($item, $key) {
-                $item->setDiscountRate($this->discount);
+            $rate = $this->discount;
+
+            if ($this->discountType === self::DISCOUNT_FIXED) {
+                $rate = $this->discount / $content->count();
+            }
+            $content->each(function (CartItem $item, $key) use ($rate) {
+                $item->setDiscountType($this->discountType);
+                $item->setDiscountRate($rate);
             });
         }
+    }
+
+    /**
+     * Helper method for removing global discount
+     *
+     * @return void
+     */
+    public function removeGlobalDiscount()
+    {
+        $this->setGlobalDiscount(null, 0);
+    }
+
+    public function addCartDiscount()
+    {
+        $discount = [
+            'code'   => $this->discountCode,
+            'type'   => $this->discountType,
+            'amount' => $this->discount,
+        ];
+
+        $this->cartDiscount = $discount;
+
+        $content = $this->getContent();
+        $content->put('discount', $this->cartDiscount);
+
+        $this->session->put($this->instance, $content);
+    }
+
+    public function getCartDiscount()
+    {
+        if (!$this->getContent()->has('discount')) {
+            return null;
+        }
+
+        return (object) $this->getContent()->get('discount');
     }
 
     /**
