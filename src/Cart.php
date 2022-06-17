@@ -819,8 +819,12 @@ class Cart
 
         $content = $this->getContent();
 
-        foreach ($storedContent as $cartItem) {
-            $content->put($cartItem->rowId, $cartItem);
+        foreach ($storedContent as $id => $cartItem) {
+            if ($id === "discount") {
+                $content->put('discount', $this->cartDiscount);
+            } else {
+                $content->put($cartItem->rowId, $cartItem);
+            }
         }
 
         $this->events->dispatch('cart.restored');
