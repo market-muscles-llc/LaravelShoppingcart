@@ -24,6 +24,16 @@ class Cart
     const DISCOUNT_PERCENTAGE = 'percentage';
     const DISCOUNT_FIXED = 'fixed';
 
+	/**
+	 * Excluded rowIds when getting cart items
+	 *
+	 * @var array
+	 */
+	private $excludedRowIds = [
+		'discount',
+		'payment_intent',
+	];
+
     /**
      * Instance of the session manager.
      *
@@ -93,6 +103,13 @@ class Cart
      * @var float
      */
     private $taxRate = 0;
+
+	/**
+	 * Defines the payment intent
+	 *
+	 * @var null|string
+	 */
+	private $paymentIntent = null;
 
     /**
      * Cart constructor.
@@ -337,7 +354,7 @@ class Cart
 
         return $this->session->get($this->instance)
             ->reject(function ($row, $rowId) {
-                return $rowId === 'discount';
+				return in_array($rowId, $this->excludedRowIds);
             });
     }
 
@@ -350,7 +367,7 @@ class Cart
     {
         return $this->getContent()
             ->reject(function ($row, $rowId) {
-                return $rowId === 'discount';
+	            return in_array($rowId, $this->excludedRowIds);
             })
             ->sum('qty');
     }
@@ -365,7 +382,7 @@ class Cart
     {
         return $this->getContent()
             ->reject(function ($row, $rowId) {
-                return $rowId === 'discount';
+	            return in_array($rowId, $this->excludedRowIds);
             })
             ->count();
     }
@@ -379,7 +396,7 @@ class Cart
     {
         return $this->getContent()
             ->reject(function ($row, $rowId) {
-                return $rowId === 'discount';
+	            return in_array($rowId, $this->excludedRowIds);
             })
             ->reduce(function ($total, CartItem $cartItem) {
                 return $total + $cartItem->total;
@@ -409,7 +426,7 @@ class Cart
     {
         return $this->getContent()
             ->reject(function ($row, $rowId) {
-                return $rowId === 'discount';
+	            return in_array($rowId, $this->excludedRowIds);
             })
             ->reduce(function ($tax, CartItem $cartItem) {
                 return $tax + $cartItem->taxTotal;
@@ -439,7 +456,7 @@ class Cart
     {
         return $this->getContent()
             ->reject(function ($row, $rowId) {
-                return $rowId === 'discount';
+	            return in_array($rowId, $this->excludedRowIds);
             })
             ->reduce(function ($subTotal, CartItem $cartItem) {
                 return $subTotal + $cartItem->subtotal;
@@ -469,7 +486,7 @@ class Cart
     {
         return $this->getContent()
             ->reject(function ($row, $rowId) {
-                return $rowId === 'discount';
+	            return in_array($rowId, $this->excludedRowIds);
             })
             ->reduce(function ($discount, CartItem $cartItem) {
                 return $discount + $cartItem->discountTotal;
@@ -499,7 +516,7 @@ class Cart
     {
         return $this->getContent()
             ->reject(function ($row, $rowId) {
-                return $rowId === 'discount';
+	            return in_array($rowId, $this->excludedRowIds);
             })
             ->reduce(function ($initial, CartItem $cartItem) {
                 return $initial + ($cartItem->qty * $cartItem->price);
@@ -529,7 +546,7 @@ class Cart
     {
         return $this->getContent()
             ->reject(function ($row, $rowId) {
-                return $rowId === 'discount';
+	            return in_array($rowId, $this->excludedRowIds);
             })
             ->reduce(function ($initial, CartItem $cartItem) {
                 return $initial + $cartItem->priceTotal;
@@ -559,7 +576,7 @@ class Cart
     {
         return $this->getContent()
             ->reject(function ($row, $rowId) {
-                return $rowId === 'discount';
+	            return in_array($rowId, $this->excludedRowIds);
             })
             ->reduce(function ($total, CartItem $cartItem) {
                 return $total + ($cartItem->qty * $cartItem->weight);
@@ -642,7 +659,7 @@ class Cart
      * Set the global tax rate for the cart.
      * This will set the tax rate for all items.
      *
-     * @param float $discount
+     * @param float $taxRate
      */
     public function setGlobalTax($taxRate)
     {
@@ -650,7 +667,7 @@ class Cart
 
         $content = $this->getContent()
             ->reject(function ($row, $rowId) {
-                return $rowId === 'discount';
+	            return in_array($rowId, $this->excludedRowIds);
             });
 
         if ($content && $content->count()) {
@@ -664,7 +681,7 @@ class Cart
      * Set the discount rate for the cart item with the given rowId.
      *
      * @param string    $rowId
-     * @param int|float $taxRate
+     * @param int|float $discount
      *
      * @return void
      */
@@ -749,6 +766,25 @@ class Cart
         return (object) $this->getContent()->get('discount');
     }
 
+	public function addPaymentIntent($paymentIntent)
+	{
+		$this->paymentIntent = $paymentIntent;
+
+		$content = $this->getContent();
+		$content->put('payment_intent', $this->paymentIntent);
+
+		$this->session->put($this->instance, $content);
+	}
+
+	public function getPaymentIntent()
+	{
+		if (!$this->getContent()->has('payment_intent')) {
+			return null;
+		}
+
+		return $this->getContent()->get('payment_intent');
+	}
+
     /**
      * Store an the current instance of the cart.
      *
@@ -822,6 +858,8 @@ class Cart
         foreach ($storedContent as $id => $cartItem) {
             if ($id === "discount") {
                 $content->put('discount', $this->cartDiscount);
+            } elseif ($id === "payment_intent") {
+				$content->put('payment_intent', $this->paymentIntent);
             } else {
                 $content->put($cartItem->rowId, $cartItem);
             }
