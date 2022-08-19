@@ -786,7 +786,7 @@ class Cart
 	/**
 	 * Retreives the payment intent from the current cart instance.
 	 *
-	 * @return null|string
+	 * @return string|null
 	 */
 	public function getPaymentIntent()
 	{
@@ -795,6 +795,22 @@ class Cart
 		}
 
 		return $this->getContent()->get('payment_intent');
+	}
+
+	/**
+	 * Remove the payment intent from the current cart instance.
+	 *
+	 * @return void
+	 */
+	public function removePaymentIntent()
+	{
+		$this->paymentIntent = null;
+
+		$content = $this->getContent();
+
+		$content->pull('payment_intent');
+
+		$this->session->put($this->instance, $content);
 	}
 
     /**
