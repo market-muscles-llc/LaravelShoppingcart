@@ -766,7 +766,14 @@ class Cart
         return (object) $this->getContent()->get('discount');
     }
 
-	public function addPaymentIntent($paymentIntent)
+	/**
+	 * Stores payment intent on the current instance of the cart.
+	 *
+	 * @param string $paymentIntent
+	 *
+	 * @return void
+	 */
+	public function setPaymentIntent($paymentIntent)
 	{
 		$this->paymentIntent = $paymentIntent;
 
@@ -776,6 +783,11 @@ class Cart
 		$this->session->put($this->instance, $content);
 	}
 
+	/**
+	 * Retreives the payment intent from the current cart instance.
+	 *
+	 * @return null|string
+	 */
 	public function getPaymentIntent()
 	{
 		if (!$this->getContent()->has('payment_intent')) {
@@ -786,7 +798,7 @@ class Cart
 	}
 
     /**
-     * Store an the current instance of the cart.
+     * Store the current instance of the cart.
      *
      * @param mixed $identifier
      *
