@@ -878,7 +878,6 @@ class Cart
             $storedContent = unserialize(base64_decode(data_get($stored, 'content')));
         } else {
             $storedContent = unserialize(data_get($stored, 'content'));
-			ray($storedContent);
         }
 
         $this->instance(data_get($stored, 'instance'));
@@ -886,6 +885,7 @@ class Cart
         $content = $this->getContent();
 
         foreach ($storedContent as $id => $cartItem) {
+			ray($id, $cartItem);
             if ($id === "discount") {
                 $content->put('discount', $this->cartDiscount);
             } elseif ($id === "payment_intent") {
