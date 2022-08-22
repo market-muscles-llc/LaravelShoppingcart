@@ -138,6 +138,7 @@ class Cart
         $instance = $instance ?: self::DEFAULT_INSTANCE;
 
         if ($instance instanceof InstanceIdentifier) {
+			$this->paymentIntent = $instance->getInstancePaymentIntent();
             $this->discount = $instance->getInstanceGlobalDiscount();
             $instance = $instance->getInstanceIdentifier();
         }
@@ -893,7 +894,7 @@ class Cart
             }
         }
 
-        $this->events->dispatch('cart.restored');
+        $this->events->dispatch('cart.restored', $content);
 
         $this->session->put($this->instance, $content);
 
