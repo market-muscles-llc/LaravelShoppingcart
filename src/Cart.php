@@ -885,17 +885,18 @@ class Cart
         $content = $this->getContent();
 
         foreach ($storedContent as $id => $cartItem) {
-			ray($id, $cartItem);
             if ($id === "discount") {
                 $content->put('discount', $this->cartDiscount);
             } elseif ($id === "payment_intent") {
+				$this->paymentIntent = $cartItem;
+
 				$content->put('payment_intent', $this->paymentIntent);
             } else {
                 $content->put($cartItem->rowId, $cartItem);
             }
         }
 
-        $this->events->dispatch('cart.restored', $content);
+        $this->events->dispatch('cart.restored');
 
         $this->session->put($this->instance, $content);
 
