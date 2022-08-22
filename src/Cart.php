@@ -878,6 +878,7 @@ class Cart
             $storedContent = unserialize(base64_decode(data_get($stored, 'content')));
         } else {
             $storedContent = unserialize(data_get($stored, 'content'));
+			ray($storedContent);
         }
 
         $this->instance(data_get($stored, 'instance'));
