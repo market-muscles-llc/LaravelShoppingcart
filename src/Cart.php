@@ -104,13 +104,6 @@ class Cart
      */
     private $taxRate = 0;
 
-	/**
-	 * Defines the payment intent
-	 *
-	 * @var null|string
-	 */
-	private $paymentIntent = null;
-
     /**
      * Cart constructor.
      *
@@ -775,10 +768,8 @@ class Cart
 	 */
 	public function setPaymentIntent($paymentIntent)
 	{
-		$this->paymentIntent = $paymentIntent;
-
 		$content = $this->getContent();
-		$content->put('payment_intent', $this->paymentIntent);
+		$content->put('payment_intent', $paymentIntent);
 
 		$this->session->put($this->instance, $content);
 	}
@@ -804,8 +795,6 @@ class Cart
 	 */
 	public function removePaymentIntent()
 	{
-		$this->paymentIntent = null;
-
 		$content = $this->getContent();
 
 		$content->pull('payment_intent');
@@ -886,8 +875,6 @@ class Cart
         foreach ($storedContent as $id => $cartItem) {
             if ($id === "discount") {
                 $content->put('discount', $this->cartDiscount);
-            } elseif ($id === "payment_intent") {
-				$content->put('payment_intent', $this->paymentIntent);
             } else {
                 $content->put($cartItem->rowId, $cartItem);
             }
