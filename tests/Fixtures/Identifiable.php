@@ -16,17 +16,23 @@ class Identifiable implements InstanceIdentifier
      */
     private $discountRate;
 
-    /**
-     * BuyableProduct constructor.
-     *
-     * @param int|string $id
-     * @param string     $name
-     * @param float      $price
-     */
-    public function __construct($identifier = 'identifier', $discountRate = 0)
+	/**
+	 * @var null|string
+	 */
+	private $paymentIntent;
+
+	/**
+	 * Identifiable constructor.
+	 *
+	 * @param string $identifier
+	 * @param int $discountRate
+	 * @param null|string $paymentIntent
+	 */
+    public function __construct($identifier = 'identifier', $discountRate = 0, $paymentIntent = null)
     {
         $this->identifier = $identifier;
         $this->discountRate = $discountRate;
+		$this->paymentIntent = $paymentIntent;
     }
 
     /**
@@ -40,12 +46,22 @@ class Identifiable implements InstanceIdentifier
     }
 
     /**
-     * Get the unique identifier to load the Cart from.
+     * Get the global discount of the current cart instance.
      *
-     * @return int|string
+     * @return int
      */
     public function getInstanceGlobalDiscount($options = null)
     {
         return $this->discountRate;
     }
+
+	/**
+	 * Get the payment intent of the current cart instance.
+	 *
+	 * @return string|null
+	 */
+	public function getInstancePaymentIntent($options = null)
+	{
+		return $this->paymentIntent;
+	}
 }
